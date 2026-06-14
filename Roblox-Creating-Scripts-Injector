@@ -1,0 +1,75 @@
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Создание интерфейса (HUD)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "StatsHUD"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Создание главного контейнера
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 200, 0, 80)
+Frame.Position = UDim2.new(0, 10, 0, 10) -- Левый верхний угол экрана
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BackgroundTransparency = 0.5
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+
+-- Скругление углов для красоты
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame
+
+-- Текст для FPS
+local FpsLabel = Instance.new("TextLabel")
+FpsLabel.Size = UDim2.new(1, -20, 0, 30)
+FpsLabel.Position = UDim2.new(0, 10, 0, 5)
+FpsLabel.BackgroundTransparency = 1
+FpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FpsLabel.TextSize = 16
+FpsLabel.Font = Enum.Font.SourceSansBold
+FpsLabel.TextXAlignment = Enum.TextXAlignment.Left
+FpsLabel.Text = "FPS: Инициализация..."
+FpsLabel.Parent = Frame
+
+-- Текст для координат (Studs)
+local PosLabel = Instance.new("TextLabel")
+PosLabel.Size = UDim2.new(1, -20, 0, 30)
+PosLabel.Position = UDim2.new(0, 10, 0, 40)
+PosLabel.BackgroundTransparency = 1
+PosLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+PosLabel.TextSize = 14
+PosLabel.Font = Enum.Font.SourceSansBold
+PosLabel.TextXAlignment = Enum.TextXAlignment.Left
+PosLabel.Text = "X: 0 | Y: 0 | Z: 0"
+PosLabel.Parent = Frame
+
+-- Логика подсчета FPS и позиции
+local fpsCount = 0
+local lastUpdate = os.clock()
+
+RunService.RenderStepped:Connect(function()
+    -- Расчет FPS
+    fpsCount = fpsCount + 1
+    local now = os.clock()
+    if now - lastUpdate >= 1 then
+        FpsLabel.Text = "FPS: " .. fpsCount
+        fpsCount = 0
+        lastUpdate = now
+    end
+
+    -- Расчет координат персонажа
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local pos = character.HumanoidRootPart.Position
+        -- Скругляем до сотых долей для читаемости
+        local x = string.format("%.2f", pos.X)
+        local y = string.format("%.2f", pos.Y)
+        local z = string.format("%.2f", pos.Z)
+        PosLabel.Text = "X: " .. x .. " | Y: " .. y .. " | Z: " .. z
+    else
+        PosLabel.Text = "Позиция недоступна"
+    end
+end)
